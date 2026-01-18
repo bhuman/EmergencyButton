@@ -1,0 +1,6 @@
+[submodule "EmergencyButtonServer/external/freetz-ng"]
+	path = EmergencyButtonServer/external/freetz-ng
+	url = https://github.com/Freetz-NG/freetz-ng
+[submodule "EmergencyButtonEmbedded/external/avrdude"]
+	path = EmergencyButtonEmbedded/external/avrdude
+	url = https://github.com/avrdudes/avrdude
