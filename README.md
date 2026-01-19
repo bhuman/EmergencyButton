@@ -7,8 +7,8 @@ It's subdiveded in the following directories:
 * EmergencyButtonServer: The program running on the access point (MIPS architecture) receiving signals from the button and relaying it onto the Network using a UDP broadcast ping
 * Schematic: Contains electrical diagrams and 3D models of the button 
 
-[!note]
-You will need a UNIX-like operating system in order to build this project
+> [!note]
+> You will need a UNIX-like operating system in order to build this project
 
 
 ## Getting Started
@@ -27,8 +27,8 @@ With this project you are able to build the following files:
 
 You will be needing the following dependencies to be able to build this project:
 
-| cmake |
-| gcc   |
+* cmake
+* gcc
 
 
 ### Building
