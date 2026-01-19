@@ -15,7 +15,7 @@ void setup()
     pinMode(LED_BUILTIN_RX, INPUT);
 }
 
-void loop() 
+void loop()
 {
     if(Serial.availableForWrite())
         Serial.write((uint8_t)digitalRead(BUTTON_PIN));

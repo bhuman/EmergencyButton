@@ -4,3 +4,15 @@
 [submodule "EmergencyButtonEmbedded/external/avrdude"]
 	path = EmergencyButtonEmbedded/external/avrdude
 	url = https://github.com/avrdudes/avrdude
+[submodule "EmergencyButtonEmbedded/external/binutils-gdb"]
+	path = EmergencyButtonEmbedded/external/binutils-gdb
+	url = https://github.com/bminor/binutils-gdb
+[submodule "EmergencyButtonEmbedded/external/gcc"]
+	path = EmergencyButtonEmbedded/external/gcc
+	url = https://github.com/gcc-mirror/gcc
+[submodule "EmergencyButtonEmbedded/external/avr-libc"]
+	path = EmergencyButtonEmbedded/external/avr-libc
+	url = https://github.com/avrdudes/avr-libc
+[submodule "EmergencyButtonEmbedded/external/ArduinoCore-avr"]
+	path = EmergencyButtonEmbedded/external/ArduinoCore-avr
+	url = https://github.com/arduino/ArduinoCore-avr/

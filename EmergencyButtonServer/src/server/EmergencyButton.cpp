@@ -38,14 +38,13 @@ void EmergencyButton::connect()
     serial.setBaudrate(EMERGENCY_BUTTON_SERIAL_BAUDRATE);
 }
 
-void EmergencyButton::update()
+bool EmergencyButton::update()
 {
     uint8_t data = 0;
     if(serial.read((const char*)&data, 1) > 0)
     {
         tCountdownStart = std::chrono::system_clock::now();
-        if(!data && pEmergencyCallback != nullptr)
-            pEmergencyCallback();
+        return false;
     }
     else
     {
@@ -61,12 +60,8 @@ void EmergencyButton::update()
     }
     else if(elapsed.count() > EMERGENCY_BUTTON_CRITICAL_CONNECTION_LOST_MILLIS)
     {
-        if(pEmergencyCallback != nullptr)
-            pEmergencyCallback();
+        return false;
     }
-}
-
-void EmergencyButton::onEmergency(std::function<void()> callback)
-{
-    this->pEmergencyCallback = callback;
+    
+    return true;
 }

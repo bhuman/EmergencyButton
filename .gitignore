@@ -81,6 +81,8 @@ fp-info-cache
 *.app
 
 # Build directories
+toolchain/
+output/
 build/
 Build/
 build-*/

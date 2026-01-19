@@ -1,32 +1,34 @@
 #include "BroadcastSocket.h"
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include <sys/select.h>
 
 BroadcastSocket::BroadcastSocket() 
-{  
-  sock = socket(AF_INET, SOCK_DGRAM, 0);
-  if(sock < 0) 
-  {
-    std::cerr << "Failed to create socket" << std::endl;
-    return;
-  }
+  : iAddrLength(sizeof(struct sockaddr_in))
+{
+    iSock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(iSock < 0) 
+    {
+        std::cerr << "Failed to create socket" << std::endl;
+        return;
+    }
 
-  ret = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &(int){1}, sizeof(int));
-  if(ret == -1)
-  {
-    std::cerr << "setsockopt error" << std::endl;
-    return;
-  }
+    if(setsockopt(iSock, SOL_SOCKET, SO_BROADCAST, &iEnable, sizeof(iEnable)) < 0)
+    {
+        std::cerr << "setsockopt error" << std::endl;
+        return;
+    }
 
-  addr_len = sizeof(struct sockaddr_in);
 
-  memset((void*)&broadcast_addr, 0, addr_len);
-  broadcast_addr.sin_family = AF_INET;
-  broadcast_addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
-  broadcast_addr.sin_port = htons(EMERGENCY_BUTTON_BROADCAST_PORT);
+    memset((void*)&oBroadcastAddr, 0, iAddrLength);
+    oBroadcastAddr.sin_family = AF_INET;
+    oBroadcastAddr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
+    oBroadcastAddr.sin_port = htons(EMERGENCY_BUTTON_BROADCAST_PORT);
 }
 
 
-void BroadcastSocket::sendPing()
+bool BroadcastSocket::sendMsg(const std::string& msg)
 {
-    ret = sendto(sock, "test", strlen("test"), 0, (struct sockaddr*) &broadcast_addr, addr_len);
+    return sendto(iSock, msg.c_str(), msg.length(), 0, (struct sockaddr*)&oBroadcastAddr, iAddrLength);
 }
