@@ -6,7 +6,7 @@
 	url = https://github.com/avrdudes/avrdude
 [submodule "EmergencyButtonEmbedded/external/binutils-gdb"]
 	path = EmergencyButtonEmbedded/external/binutils-gdb
-	url = https://github.com/bminor/binutils-gdb
+	url = https://gitlab.com/gnutools/binutils-gdb
 [submodule "EmergencyButtonEmbedded/external/gcc"]
 	path = EmergencyButtonEmbedded/external/gcc
 	url = https://github.com/gcc-mirror/gcc
