@@ -76,4 +76,5 @@ You will be needing the following dependencies to be able to build this project:
    The config file used by freetz' makefile is also stored in `./Config` called `freetz-ng.config`
 
    After flashing freetz, you can change the UDP port and broadcast interval inside freetz' webinterface under `http://[the routers address or FQDN]:81/cgi-bin/conf/bhuman`:
-   ![freetz screenshot](images/freetz-screen.png){width=50%}
+
+   ![freetz screenshot](images/freetz-screen.png){width=100%}
