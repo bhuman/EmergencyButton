@@ -12,6 +12,7 @@ private:
     std::chrono::system_clock::time_point tCountdownEnd = std::chrono::system_clock::now();
     Serial serial;
     bool bIsConnected;
+    bool bReceivedEmergencySignal;
 
     std::string check_serial_devices();
     void connect();

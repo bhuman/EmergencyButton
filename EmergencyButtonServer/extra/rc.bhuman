@@ -1,0 +1,76 @@
+#!/bin/sh
+
+DAEMON=bhuman
+DAEMON_BIN="emergency_button_server"
+DAEMON_LONG_NAME="B-Human"
+
+. /etc/init.d/modlibrc
+test -r /etc/options.cfg && . /etc/options.cfg
+
+pre_config() {
+    mkdir -p /tmp/flash/bhuman
+    ln -s /usr/lib/cgi-bin/bhuman.cgi /mod/usr/lib/cgi-bin/bhuman.cgi
+}
+
+start () {
+    echo "Starting emergency button server.."
+    #nohup /usr/bin/emergency_button_server > /var/log/emergency_button.log
+
+    BHUMAN_OPTIONS="$BHUMAN_OPTIONS -p $BHUMAN_EMERGENCYBUTTONPORT -i $BHUMAN_EMERGENCYBUTTONINTERVAL"
+    set -o noglob
+    modlib_startdaemon start-stop-daemon -S -O "/var/log/emergency_button_server.log" -b -q -m -p "$PID_FILE" -n "$DAEMON_BIN" -- /usr/bin/emergency_button_server $BHUMAN_OPTIONS
+    #echo $$ > /run/emergency.pid
+}
+
+stop() {
+    local PID=$(cat "$PID_FILE" 2>/dev/null)
+    local COUNTDOWN="$SIGTERM_WAIT_SECS"
+
+    #Try to kill process for $SIGTERM_WAIT_SECS seconds
+    while test $COUNTDOWN -gt 0 && kill -0 $PID 2> /dev/null; do
+        kill $PID 2> /dev/null
+        sleep 1
+        COUNTDOWN=$((COUNTDOWN - 1))
+    done
+    
+    #If process is still alive kill it with a SIGKILL signal
+    kill -0 $PID 2> /dev/null && {
+        kill -9 $PID 2> /dev/null
+    }
+
+    return 0
+}
+
+case $1 in
+    ""|load)
+        pre_config
+
+        modreg cgi 'bhuman' 'B-Human'
+        modreg daemon $DAEMON
+
+        modlib_start $BHUMAN_ENABLED
+    ;;
+    unload)
+        modunreg daemon $DAEMON
+        modunreg cgi 'bhuman'
+        modlib_stop
+    ;;
+    start)
+        modlib_start
+    ;;
+    stop)
+        modlib_stop
+    ;;
+    restart)
+        modlib_restart
+    ;;
+    status)
+        modlib_status
+    ;;
+    *)
+        echo "Usage: $0 [load|unload|start|stop|restart|status]" 1>&2
+        exit 1
+    ;;
+esac
+
+exit 0

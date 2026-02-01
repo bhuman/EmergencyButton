@@ -18,5 +18,5 @@ void setup()
 void loop()
 {
     if(Serial.availableForWrite())
-        Serial.write((uint8_t)digitalRead(BUTTON_PIN));
+        Serial.write(digitalRead(BUTTON_PIN) ? "n" : "y");
 }

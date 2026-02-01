@@ -11,7 +11,7 @@ private:
     int iAddrLength;
   
 public:
-    BroadcastSocket();
+    BroadcastSocket(const std::string& interface, int port);
 
     bool sendMsg(const std::string& msg);
 };

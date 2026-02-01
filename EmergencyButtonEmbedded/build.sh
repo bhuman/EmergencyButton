@@ -16,9 +16,22 @@ build_binutils () {
     mkdir -p "$TOOLCHAIN_DIR"
 
     cd "$TOOLCHAIN_BUILD_DIR/binutils"
-    "$BINUTILS_DIR/configure" --prefix="$TOOLCHAIN_DIR" --target=avr --disable-nls
-    make -j$NCPU
-    make install
+    "$BINUTILS_DIR/configure" --prefix="$TOOLCHAIN_DIR" --target=avr --disable-nls || {
+        echo "Failed to configure binutils"
+        return 1
+    }
+
+    make -j$NCPU || {
+        echo "Failed to build binutils"
+        return 1
+    }
+
+    make install || {
+        echo "Failed to install binutils"
+        return 1
+    }
+
+    return 0
 }
 
 
@@ -31,9 +44,20 @@ build_gcc () {
     ./contrib/download_prerequisites
 
     cd "$TOOLCHAIN_BUILD_DIR/gcc"
-    $GCC_DIR/configure --prefix="$TOOLCHAIN_DIR" --target=avr --enable-languages=c,c++,lto --disable-nls --disable-libssp --with-dwarf2
-    make -j$NCPU
-    make install-strip
+    $GCC_DIR/configure --prefix="$TOOLCHAIN_DIR" --target=avr --enable-languages=c,c++,lto --disable-nls --disable-libssp --with-dwarf2 || {
+        echo "Failed to configure GCC"
+        return 1
+    }
+    make -j$NCPU || {
+        echo "Failed to build GCC"
+        return 1
+    }
+    make install-strip || {
+        echo "Failed to install GCC"
+        return 1
+    }
+
+    return 0
 }
 
 build_libc () {
@@ -42,12 +66,26 @@ build_libc () {
     mkdir -p "$TOOLCHAIN_DIR"
 
     cd "$LIBC_DIR"
-    ./bootstrap
+    ./bootstrap || {
+        echo "Failed to bootstrap AVR-LibC"
+        return 1
+    }
 
     cd "$TOOLCHAIN_BUILD_DIR/libc"
-    $LIBC_DIR/configure --prefix="$TOOLCHAIN_DIR" --build=`./config.guess` --host=avr
-    make -j$NCPU
-    make install
+    $LIBC_DIR/configure --prefix="$TOOLCHAIN_DIR" --build=`./config.guess` --host=avr || {
+        echo "Failed to configure AVR-LibC"
+        return 1
+    }
+    make -j$NCPU || {
+        echo "Failed to build AVR-LibC"
+        return 1
+    }
+    make install || {
+        echo "Failed to install AVR-LibC"
+        return 1
+    }
+
+    return 0
 }
 
 build_avrdude () {
@@ -56,11 +94,20 @@ build_avrdude () {
 
 
     cd "$TOOLCHAIN_BUILD_DIR/avrdude"
-    cmake "$AVRDUDE_DIR"
-    make -j$NCPU
+    cmake "$AVRDUDE_DIR" || {
+        echo "Failed to configure avrdude"
+        return 1
+    }
+
+    make -j$NCPU || {
+        echo "Failed to build avrdude"
+        return 1
+    }
 
     cd "$TOOLCHAIN_DIR/bin"
     ln -fs "../../build/toolchain/avrdude/src/avrdude" .
+    
+    return 0
 }
 
 build_project () {
@@ -82,19 +129,19 @@ build_project () {
 }
 
 test -f "$TOOLCHAIN_DIR/bin/avr-ar" || {
-    build_binutils
+    build_binutils || exit
 }
 
 test -f "$TOOLCHAIN_DIR/bin/avr-gcc" || {
-    build_gcc
+    build_gcc || exit
 }
 
 test -f "$TOOLCHAIN_DIR/avr/lib/libc.a" || {
-    build_libc
+    build_libc || exit
 }
 
 test -r "$TOOLCHAIN_DIR/bin/avrdude" || {
-    build_avrdude
+    build_avrdude || exit
 }
 
 build_project

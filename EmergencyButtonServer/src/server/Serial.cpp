@@ -4,6 +4,8 @@
 #include <iostream>
 #include <errno.h>
 #include <cstring>
+#include <sys/ioctl.h>
+#include "Toolbox.h"
 
 Serial::Serial()
   : iFileDescriptor(-1),
@@ -17,13 +19,13 @@ bool Serial::open(std::string port)
     this->iFileDescriptor = ::open(port.c_str(), O_RDWR | O_NOCTTY | O_SYNC | O_NDELAY);
     if(this->iFileDescriptor < 0)
     {
-        std::cerr << "Failed to open " << port << ": " << strerror(errno) << std::endl;
+        error("Failed to open " << port << ": " << strerror(errno));
         return false;
     }
     
     
     if(tcgetattr(iFileDescriptor, &tty) != 0) {
-        std::cerr << "Failed to get tty: " << strerror(errno) << std::endl;
+        error("Failed to get tty: " << strerror(errno));
         return false;
     }
 
@@ -37,7 +39,7 @@ bool Serial::open(std::string port)
 
     if(tcsetattr(iFileDescriptor, TCSANOW, &tty) != 0)
     {
-        std::cerr << "Error from tcsetattr: " << strerror(errno) << std::endl;
+        error("Error from tcsetattr: " << strerror(errno));
         return false;
     }
 
@@ -53,7 +55,9 @@ void Serial::close()
 
 size_t Serial::read(const char* buffer, size_t size)
 {
-    return ::read(iFileDescriptor, (void*)buffer, size);
+    size_t readsize = ::read(iFileDescriptor, (void*)buffer, size);
+    ioctl(iFileDescriptor, TCFLSH, 2); // flush serial port buffer
+    return readsize;
 }
 
 size_t Serial::write(const char* buffer, size_t size)
@@ -68,7 +72,7 @@ bool Serial::setBaudrate(int baudrate)
 
     if(tcsetattr(iFileDescriptor, TCSANOW, &tty) != 0)
     {
-        std::cerr << "Error from tcsetattr: " << strerror(errno) << std::endl;
+        error("Error from tcsetattr: " << strerror(errno));
         return false;
     }
     return true;

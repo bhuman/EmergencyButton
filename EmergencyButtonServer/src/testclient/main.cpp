@@ -16,13 +16,16 @@ char buffer[1024];
 
 int main() 
 {
+    std::cout << "Initializing UDP socket.. ";
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if(sock < 0) 
     {
         std::cout << "Socket creation error" << std::endl;
         return -1;
     }
-
+    std::cout << "got " << sock << " as file descriptor." << std::endl;
+    
+    std::cout << "Listening on port " << EMERGENCY_BUTTON_BROADCAST_PORT << std::endl;
     memset((void*)&oServerAddr, 0, iAddrLengh);
     oServerAddr.sin_family = AF_INET;
     oServerAddr.sin_addr.s_addr = htons(INADDR_ANY);
@@ -35,6 +38,7 @@ int main()
     }
 
 
+    std::cout << "Waiting for message" << std::endl;
     while(true) 
     {
         recvfrom(sock, buffer, 1024, 0, (struct sockaddr*)&oClientAddr, &iAddrLengh);

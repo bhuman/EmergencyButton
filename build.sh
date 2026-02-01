@@ -42,6 +42,7 @@ build_server () {
     mkdir -p "$OUTPUT_DIR"
     cp "$EMERGENCY_BUTTON_SERVER_DIR/build/src/server/emergency_button_server" "$OUTPUT_DIR"
     cp "$EMERGENCY_BUTTON_SERVER_DIR/build/src/testclient/emergency_button_client" "$OUTPUT_DIR"
+    cp "$(readlink -f "$FREETZ_DIR/images/latest.image")" "$OUTPUT_DIR/freetz-image.image"
 
     echo "Done building server"
 }

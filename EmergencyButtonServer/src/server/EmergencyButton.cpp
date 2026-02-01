@@ -2,9 +2,11 @@
 #include <iostream>
 #include <thread>
 #include <sys/stat.h>
+#include "Toolbox.h"
 
 EmergencyButton::EmergencyButton()
   : bIsConnected(false)
+  , bReceivedEmergencySignal(false)
 {
     connect();
 }
@@ -27,24 +29,41 @@ void EmergencyButton::connect()
     connectstart:
     while((port = check_serial_devices()) == "")
     {
-        std::cout << "Trying to connect to button" << std::endl;
+        print("Trying to connect to button");
         std::this_thread::sleep_for(1s);
     }
     
     if(!serial.open(port))
         goto connectstart;
         
-    std::cout << "Connected to button!" << std::endl;
+    print("Connected to button!");
+    bReceivedEmergencySignal = false;
     serial.setBaudrate(EMERGENCY_BUTTON_SERIAL_BAUDRATE);
 }
 
 bool EmergencyButton::update()
 {
     uint8_t data = 0;
+
+    //Receiving anything?
     if(serial.read((const char*)&data, 1) > 0)
     {
         tCountdownStart = std::chrono::system_clock::now();
-        return false;
+
+        //Button has been pressed
+        if(data == 'y')
+        {
+            if(!bReceivedEmergencySignal)
+                print("Emergency button pushed down");
+            bReceivedEmergencySignal = true;
+            return false;
+        }
+        else if(data == 'n')
+        {
+            if(bReceivedEmergencySignal)
+                print("Emergency button pulled up");
+            bReceivedEmergencySignal = false;
+        }
     }
     else
     {
@@ -54,12 +73,13 @@ bool EmergencyButton::update()
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(tCountdownEnd - tCountdownStart);
     if(elapsed.count() > EMERGENCY_BUTTON_DISCONNECT_MILLIS)
     {
-        std::cerr << "Connection lost, reconnecting.." << std::endl;
+        print("Connection lost after " << elapsed.count() << "ms , reconnecting..");
         serial.close();
         connect();
     }
     else if(elapsed.count() > EMERGENCY_BUTTON_CRITICAL_CONNECTION_LOST_MILLIS)
     {
+        print("Button has probably timed out after " << elapsed.count() << "ms, sending emergency signal just in case..");
         return false;
     }
     
